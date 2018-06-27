@@ -7,13 +7,13 @@
 clean_fvfm_file(fvfm_file)
 }
 \arguments{
-\item{fvfm_file}{a character vector with the full path 
+\item{fvfm_file}{a character vector with the full path
 name of the fv-fm file}
 }
 \value{
 cleaned fv-fm file
 }
 \description{
-Cleans files
+removes Fv_Fm values that are either negative or
 }
 \keyword{internal}

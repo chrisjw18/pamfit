@@ -14,7 +14,7 @@ etr_bigmatrix(path, total, light)
 \item{light}{steps}
 }
 \description{
-creates an empty big.matrix object to store 
+creates an empty big.matrix object to store
 the rETR values of all the images it uses the bigmemory library
 }
 \keyword{internal}

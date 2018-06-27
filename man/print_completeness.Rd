@@ -14,7 +14,7 @@ print_completeness(ncores, i, total)
 \item{total}{number of pixels}
 }
 \description{
-Print completeness percentage in the R console if using 
+Print completeness percentage in the R console if using
 just one core when multiple cores are used it is not possible to plot the
 percentage because of the multiple R instances running,
 thus a message is printed

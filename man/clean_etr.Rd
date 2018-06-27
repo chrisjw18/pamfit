@@ -11,14 +11,15 @@ clean_etr(fv_fm_file, light_value, abso)
 
 \item{light_value}{one light step value}
 
-\item{abso}{absorbance value}
+\item{abso}{absorbance value, either 0.84 or a value coming from the PAM absorbance
+calculation,i.e. Abs. = 1 - Red/NIR.}
 }
 \value{
 cleaned FvFm file
 }
 \description{
 Some of the Fv/Fm will be noise pixels.
-The second line of each ETR object replaces these pixels with 
+The second line of each ETR object replaces these pixels with
 NA values to be skipped during further calculations.
 }
 \keyword{internal}

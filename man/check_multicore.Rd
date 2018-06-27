@@ -13,7 +13,7 @@ check_multicore(ncores)
 the number of cores
 }
 \description{
-Makes sure that multicore is not activated 
+Makes sure that multicore is not activated
 when using windows based OS
 }
 \keyword{internal}

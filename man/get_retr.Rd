@@ -20,7 +20,7 @@ list with etr matrices
 Cycle to calculate the rETR values
 
 Some of the Fv/Fm will be noise pixels.
-The second line of each ETR object replaces these pixels with 
+The second line of each ETR object replaces these pixels with
 NA values to be skipped during further calculations.
 }
 \keyword{internal}

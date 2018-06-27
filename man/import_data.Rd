@@ -4,23 +4,26 @@
 \alias{import_data}
 \title{Import Data Files}
 \usage{
-import_data(input_dir = ".", ab = FALSE, output_dir = NULL)
+import_data(input_dir = ".", ab = FALSE, light_dir = input_dir,
+  output_dir = NULL, initial_light, final_light)
 }
 \arguments{
-\item{input_dir}{Input directory. Name of directory containing all the 
+\item{input_dir}{Input directory. Name of directory containing all the
 input files: light, fv_fm, NIR, RED.}
 
 \item{ab}{logical indicating whether absorbance parameter is present
 When available, \code{ab} is used to estimate rETR.}
 
+\item{light_dir}{location of the light file. Defaults to the input_dir folder.}
+
 \item{output_dir}{Output directory. An alternate directory to write the
-output file to (defaults to the directory of the input file).}
+output file to (defaults to the directory of the input file).Not implemented yet.}
 }
 \value{
-list with \code{abso}, \code{x2}, \code{y2}, 
+list with \code{abso}, \code{x2}, \code{y2},
 \code{total}, and \code{light} values
 }
 \description{
-Imports the Fv_Fm files and calculates 
+Imports the Fv_Fm files and calculates
 the equivalent rETR objects
 }

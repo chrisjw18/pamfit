@@ -4,8 +4,8 @@
 \alias{jassby_model}
 \title{Jassby Model}
 \usage{
-jassby_model(imgdim, etr_total, path = ".", ncores = 1, plots = 0,
-  alpha = 0.35, ETRmax = 40)
+jassby_model(imgdim, etr_total, ncores = 1, plots = FALSE, alpha = 0.35,
+  ETRmax = 40, output_path = ".")
 }
 \arguments{
 \item{imgdim}{list with image dimensions and light values
@@ -13,26 +13,26 @@ jassby_model(imgdim, etr_total, path = ".", ncores = 1, plots = 0,
 
 \item{etr_total}{etr big matrix object}
 
-\item{path}{character vector indicating full path where files
-are located}
-
 \item{ncores}{number of cores for parallel computing}
 
-\item{plots}{number of plots. Only works when \code{ncores = 1}}
+\item{plots}{Should plots be produced during fitting? Only works when \code{ncores = 1}}
 
 \item{alpha}{0.35 by default}
 
 \item{ETRmax}{40 by default}
+
+\item{output_path}{character vector indicating full path where output files
+will be saved}
 }
 \description{
-Fits a Jassby model
+Fits the light-photosynthesis curve model suggested by Jassby, A.D., Platt, T., 1976. Mathematical formulation of the relationship between photosynthesis and light for phytoplankton. Limnol. Oceanogr. 21: 540-547.
 }
 \details{
-multicore will crash if any attemps are made to plot 
-anything during processing. Setting \code{plots} to \code{TRUE} when 
+multicore will crash if any attemps are made to plot
+anything during processing. Setting \code{plots} to \code{TRUE} when
 \code{ncores > 1} will only plot the maps at the end of model fitting.
-It is advised that a first run is carried out with a subset of 
-the image to check model fitting plotting the fit curve and 
+It is advised that a first run is carried out with a subset of
+the image to check model fitting plotting the fit curve and
 using only one core.
 It creates a bigmemory object to store all the results
 }

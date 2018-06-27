@@ -12,15 +12,13 @@ transform_etr(etr_total, list_etr, img_dim, path)
 \item{list_etr}{list with etr matrices}
 
 \item{img_dim}{image dimensions}
-
-\item{path}{}
 }
 \description{
-Cycle to fill the big.matrix object with 
+Cycle to fill the big.matrix object with
 the rETR values with big images.
 }
 \details{
-This will take same time to execute but having 
+This will take same time to execute but having
 all the rETR values in one big.matrix object facilitates the
 calculations using \code{\link{mclapply}}, i.e. paralell computing.
 }

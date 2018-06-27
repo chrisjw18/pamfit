@@ -4,7 +4,7 @@
 \alias{import_light_steps}
 \title{Import Light Steps File}
 \usage{
-import_light_steps(path, sep = ",")
+import_light_steps(path, sep = ",", i_light, f_light)
 }
 \arguments{
 \item{path}{a character vector with the full path name of the

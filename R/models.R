@@ -1,19 +1,9 @@
-#Fits the light-photosynthesis curve model suggested by Platt et al. (1980)
-#Platt, T., Gallegos, C.L., Harrison, W.G., 1980. Photoinhibition of 
-#photosynthesis in natural assemblages of marine phytoplankton. J. Mar. Res. 38, 687-701.
-#It is more complex than the Jassby & Platt model (1976) but has the advantage of including a photo-inhibition parameter.
-#the first input parameter controls the number of cpu cores to used in the calculations. The default is one core. The number of available cores can be checked with the function test_OS().
-#the second input parameter determines if plots should be produced for each pixel. The default is TRUE (O) but changes to FALSE if more than one core is used because multicore will crash R if any attemps are made to plot anything during processing.
-#it is advised that a first run is carried out with a subset of the image to check model fitting plotting the fit curve and using only one core
-
-
 #' @title Check Multicore
-#' @description Makes sure that multicore is not activated 
+#' @description Makes sure that multicore is not activated
 #' when using windows based OS
 #' @param ncores number of cores
 #' @return the number of cores
 #' @keywords internal
-#' @export
 check_multicore <- function(ncores) {
   OS <- .Platform$OS.type
   if (OS != "unix") {
@@ -29,7 +19,6 @@ check_multicore <- function(ncores) {
 #' @param y2 number of ...
 #' @param ncol number of columns of big matrix
 #' @keywords internal
-#' @export
 create_rlc <- function(x2, y2, ncol) {
   big.matrix(x2 * y2, ncol)
 }
@@ -41,7 +30,6 @@ create_rlc <- function(x2, y2, ncol) {
 #' @param model name of the fitted model
 #' @return list with various parameters
 #' @keywords internal
-#' @export
 initialize_rlc_params <- function(model = 'jassby') {
   pars <- c(
     'alpha2' = NaN,
@@ -71,7 +59,6 @@ initialize_rlc_params <- function(model = 'jassby') {
 #' @param model name of the fitted model
 #' @return predicted value
 #' @keywords internal
-#' @export
 get_prediction <- function(rlc_params, pe3, model = 'jassby') {
   switch(
     model,
@@ -86,7 +73,6 @@ get_prediction <- function(rlc_params, pe3, model = 'jassby') {
 #' @param predicted predicted value from \code{\link{get_prediction}}
 #' @param pe3 data frame with light and etr
 #' @keywords internal
-#' @export
 get_wssr <- function(predicted, pe3) {
   sum((pe3$etr - predicted) ^ 2)
 }
@@ -97,7 +83,6 @@ get_wssr <- function(predicted, pe3) {
 #' @param predicted predicted value from \code{\link{get_prediction}}
 #' @param pe3 data frame with light and etr
 #' @keywords internal
-#' @export
 mean_normalized_bias <- function(predicted, pe3) {
   clean_pred <- na.omit((predicted - pe3$etr) / pe3$etr)
   sum(clean_pred / (length(pe3$etr) - 1)) * 100
@@ -109,10 +94,9 @@ mean_normalized_bias <- function(predicted, pe3) {
 #' @param predicted predicted value from \code{\link{get_prediction}}
 #' @param pe3 data frame with light and etr
 #' @keywords internal
-#' @export
 get_mnb <- function(predicted, pe3) {
   mnb <- tryCatch(
-    mean_normalized_bias(predicted, pe3), 
+    mean_normalized_bias(predicted, pe3),
     error = function(e) "NaN"
   )
   if (is.character(mnb)) NaN else mnb
@@ -124,7 +108,6 @@ get_mnb <- function(predicted, pe3) {
 #' @param predicted predicted value from \code{\link{get_prediction}}
 #' @param pe3 data frame with light and etr
 #' @keywords internal
-#' @export
 res_mean_square_error <- function(predicted, pe3) {
   sqrt(sum(predicted - pe3$etr) ^ 2 / (length(pe3$etr) - 2))
 }
@@ -135,10 +118,9 @@ res_mean_square_error <- function(predicted, pe3) {
 #' @param predicted predicted value from \code{\link{get_prediction}}
 #' @param pe3 data frame with light and etr
 #' @keywords internal
-#' @export
 get_rmse <- function(predicted, pe3) {
   rmse <- tryCatch(
-    res_mean_square_error(predicted, pe3), 
+    res_mean_square_error(predicted, pe3),
     error = function(e) "NaN"
   )
   if (is.character(rmse)) NaN else rmse
@@ -148,17 +130,16 @@ get_rmse <- function(predicted, pe3) {
 #' @title ETR Convergence
 #' @description update RLC parameters when etr converges to zero
 #' @param etr_sim etr
-#' @param rlc_params RLC parameters 
+#' @param rlc_params RLC parameters
 #' @param pe3 data frame with light and etr
 #' @param model name of fitted model
 #' @keywords internal
-#' @export
 etr_convergence <- function(etr_sim, rlc_params, pe3, model = 'jassby') {
   # the nonFit image
   rlc_params$nonFit <- 5
   #extraction of the parameters from the etr_sim object
   rlc_params$alpha2 <- etr_sim$par[1]
-  
+
   if (model == 'jassby') {
     # jassby
     rlc_params$etrmax2 <- etr_sim$par[2]
@@ -168,26 +149,26 @@ etr_convergence <- function(etr_sim, rlc_params, pe3, model = 'jassby') {
     rlc_params$Ps2<-etr_sim$par[3]
     if (round(etr_sim$par[2],1)==0)
     {
-      rlc_params$etrmax2<-max(pe3$etr) 
-    } 
+      rlc_params$etrmax2<-max(pe3$etr)
+    }
     else {
     rlc_params$etrmax2<-etr_sim$par[3]*(rlc_params$alpha2/(rlc_params$alpha2+ rlc_params$beta2))*( rlc_params$beta2/(rlc_params$alpha2+ rlc_params$beta2))^( rlc_params$beta2/rlc_params$alpha2)
     }
     }
-    
-    
-  
+
+
+
   rlc_params$Ek2 <- rlc_params$etrmax2 / rlc_params$alpha2
   #print( etr_sim$par[1])
   #print( etr_sim$par[2])
   #print( etr_sim$par[3])
-  
+
   #print(rlc_params$alpha2)
   #print(rlc_params$beta2)
   #print(rlc_params$Ps2)
   #print(rlc_params$etrmax2)
   #print(rlc_params$Ek2)
-  
+
   # error statistics
   predicted <- get_prediction(rlc_params, pe3, model)
   #print(predicted)
@@ -200,8 +181,8 @@ etr_convergence <- function(etr_sim, rlc_params, pe3, model = 'jassby') {
 
 
 
-#' @title Print completeness 
-#' @description Print completeness percentage in the R console if using 
+#' @title Print completeness
+#' @description Print completeness percentage in the R console if using
 #' just one core when multiple cores are used it is not possible to plot the
 #' percentage because of the multiple R instances running,
 #' thus a message is printed
@@ -209,7 +190,6 @@ etr_convergence <- function(etr_sim, rlc_params, pe3, model = 'jassby') {
 #' @param i counter
 #' @param total number of pixels
 #' @keywords internal
-#' @export
 print_completeness <- function(ncores, i, total) {
   if (ncores == 1) {
     sub_total <- i
@@ -228,7 +208,6 @@ print_completeness <- function(ncores, i, total) {
 #' @param x2 number of rows
 #' @param y2 number fo columns
 #' @keywords internal
-#' @export
 get_pixels <- function(rlc_matrix, x2, y2) {
   # calculations of the different types of pixels
   non_fit_image <- rlc_matrix[,7]
@@ -249,21 +228,20 @@ get_pixels <- function(rlc_matrix, x2, y2) {
   # percentage of pixels fitted
   fit <- sum(non_fit_image == 5)
   perc_fit <- fit / attempted * 100
-  
+
   list(
     total_pixels_inside = total_pixels_inside,
     perc_excluded = perc_excluded,
     attempted = attempted,
     perc_fit = perc_fit,
     perc_non_fit = perc_non_fit)
-}  
+}
 
 
 #' @title Print Pixel Messages
 #' @description Prints messages about pixels
 #' @param pixels_info information
 #' @keywords internal
-#' @export
 print_pixel_messages <- function(pixels_info) {
   messages <- c(
     "Total number of pixels = ",
@@ -271,7 +249,7 @@ print_pixel_messages <- function(pixels_info) {
     "Total number of pixels analyzed = ",
     "Percentage of fitted pixels = ",
     "Percentage of non-fitted pixels = ")
-  
+
   # printing pixel messages
   for (m in seq_along(messages)) {
     print(paste0(messages[m], round(pixels_info[[m]], 0) ))
@@ -280,14 +258,13 @@ print_pixel_messages <- function(pixels_info) {
 
 
 #' @title Export Images
-#' @description Export images as text files that can be imported by 
+#' @description Export images as text files that can be imported by
 #' ImageJ as text Images
 #' @param rlc_matrix RLC big matrix object
 #' @param x2 number of columns
 #' @param model name of fitted model
 #' @keywords internal
-#' @export
-export_images <- function(rlc_matrix, x2, model = 'jassby') {
+export_images <- function(rlc_matrix, x2, model = 'jassby',out_path) {
   # names of parameters
   img_params <- switch(
     model,
@@ -303,7 +280,7 @@ export_images <- function(rlc_matrix, x2, model = 'jassby') {
   }
   names(images) <- paste0(img_params, "_", model)
   # exporting image files
-  image_files <- paste0(img_params, '_', model, '_model.txt')
+  image_files <- paste0(out_path,img_params, '_', model, '_model.txt')
   for (k in 1:length(img_params)) {
     write.table(
       images[[k]],
@@ -316,27 +293,28 @@ export_images <- function(rlc_matrix, x2, model = 'jassby') {
 
 
 #' @title Platt Model
-#' @description Fits a Platt model
+#' @description Fits the light-photosynthesis curve model suggested by Platt, T., Gallegos, C.L., Harrison, W.G., 1980. Photoinhibition of photosynthesis in natural assemblages of marine phytoplankton. J. Mar. Res. 38, 687-701.
 #' @param imgdim list with image dimensions and light values
 #' (output from \code{\link{import_data}})
 #' @param etr_total etr big matrix object
-#' @param path character vector indicating full path where files
-#' are located
+#' @param output_path character vector indicating full path where output files
+#' will be saved
 #' @param ncores number of cores for parallel computing
-#' @param plots number of plots. Only works when \code{ncores = 1}
+#' @param plots should plots be printed during the fit? Only works when \code{ncores = 1}
 #' @param alpha 0.35 by default
 #' @param Ps 40 by default
 #' @param beta 0 by default
-#' @details multicore will crash if any attemps are made to plot 
-#' anything during processing. Setting \code{plots} to \code{TRUE} when 
+#' @details multicore will crash if any attemps are made to plot
+#' anything during processing. Setting \code{plots} to \code{TRUE} when
 #' \code{ncores > 1} will only plot the maps at the end of model fitting.
-#' It is advised that a first run is carried out with a subset of 
-#' the image to check model fitting plotting the fit curve and 
+#' It is advised that a first run is carried out with a subset of
+#' the image to check model fitting plotting the fit curve and
 #' using only one core.
 #' It creates a bigmemory object to store all the results
 #' @export
-platt_model <- function(imgdim, etr_total, path = '.', ncores = 1, 
-                        plots = 0, alpha = 0.35, beta = 2, Ps = 40)
+platt_model <- function(imgdim, etr_total, ncores = 1,
+                        plots = FALSE, alpha = 0.4, beta = 15, Ps = 15000,
+                        output_path='.')
 {
   if (!exists('etr_total')) {
     stop('\netr object does not exist')
@@ -347,21 +325,21 @@ platt_model <- function(imgdim, etr_total, path = '.', ncores = 1,
   light <- imgdim$light
   # multicore?
   ncores <- check_multicore(ncores)
-  
+
   # create a bigmemory object to store all the results
   #rlc_matrix <<- create_rlc(path, x2, y2, ncol = 7)
   rlc_matrix <<- create_rlc(x2, y2, ncol = 9)
-  
+
   # a counter to keep track of the fitting errors
   count_optim_errors <- 0
   sub_total <- 0
-  
+
   # the function that will be used by mclapply()
   # ======= does it have to be included? =======
   myRLC <- function(i, light) {
     # initialize RLC parameters
     rlc_params <- initialize_rlc_params(model = 'platt')
-    
+
     # update RLC parameters
     if (any(etr_total[i,] == "NaN")) {
       #skips any pixel that has non-values (areas outside AOI)
@@ -378,7 +356,7 @@ platt_model <- function(imgdim, etr_total, path = '.', ncores = 1,
       # The tryCatch option allows the errors to be stored inside
       # an object and prevents the mclapply to stop when there is an error
       #      etr_sim <- get_etr_sim(alpha, ETRmax)
-      
+
       minim.func <- function(params, data = pe3)
       {
         alpha <- params[[1]]
@@ -386,13 +364,13 @@ platt_model <- function(imgdim, etr_total, path = '.', ncores = 1,
         Ps <- params[[3]]
         return( sum( (data$etr-Ps*(1-exp(-alpha*light/Ps))*exp(-beta*light/Ps))^2))
       }
-      
-      
-      #function that finds the fit solution 
-      #Optim with  L-BFGS-B is a general-purpose optimization based on a 
-      #modification if the Nelder-Mead quasi Newton method that allows box 
-      #constrains. This is important because both rETRmax and alpha need to be 
-      #positive the tryCatch option allows the errors to be stored inside an 
+
+
+      #function that finds the fit solution
+      #Optim with  L-BFGS-B is a general-purpose optimization based on a
+      #modification if the Nelder-Mead quasi Newton method that allows box
+      #constrains. This is important because both rETRmax and alpha need to be
+      #positive the tryCatch option allows the errors to be stored inside an
       #object and prevents the mclapply to stop when there is an error
       etr_sim <-
         tryCatch(
@@ -401,61 +379,61 @@ platt_model <- function(imgdim, etr_total, path = '.', ncores = 1,
             fn = minim.func,
             control = list("maxit" = 1000000, pgtol = 0.01),
             method = "L-BFGS-B",
-            lower = c(0,0,0), 
+            lower = c(0,0,0),
             upper = c(Inf,Inf, Inf),
             hessian = TRUE
           )
           , error = function(e)
             "NaN"
         )
-      
+
       # if error message reset graf and nonFit
       if (is.character(etr_sim)) {
         rlc_params$nonFit <- 3
         rlc_params$graf <- 1
       }
-      
+
       if (is.list(etr_sim)) {
         if (etr_sim$convergence != 0) {
           count_optim_errors <<- count_optim_errors + 1
           rlc_params$nonFit <- 4
           rlc_params$graf <- 1
         }
-        
+
         if (etr_sim$convergence == 0) {
           rlc_params <- etr_convergence(etr_sim, rlc_params, pe3, model = 'platt')
-      
+
         }
-        
+
       }
-      
+
     } # end updating RLC parameters
-    
+
     # store the parameters in the bigmemory object (rlc_matrix)
     #rlc_matrix[i, ] <- unlist(rlc_params)[-length(rlc_params)]
     rlc_matrix[i, ] <- unlist(rlc_params)[-8]
-    
-    
+
+
     print_completeness(ncores, i, total)  # (only for one core)
-    
+
     #to plot data and fitted curves when ncores=1 and it is a valid pixel
-    if (ncores == 1 & rlc_params$graf == 0 & plots == 1 & i %% 5 == 0) {
+    if (ncores == 1 & rlc_params$graf == 0 & plots == TRUE & i %% 5 == 0) {
       #dev.new()
       plot(pe3$light, pe3$etr, pch = 21,
            xlab = "Light", ylab = "rETR")
      # print(rlc_params$Ps2*(1-exp(-rlc_params$alpha2*pe3$light/rlc_params$Ps2))*exp(-1*pe3$light/rlc_params$Ps2))
-      lines(pe3$light, 
+      lines(pe3$light,
             rlc_params$Ps2*(1-exp(-rlc_params$alpha2*pe3$light/rlc_params$Ps2))*exp(-rlc_params$beta2*pe3$light/rlc_params$Ps2),
             col = "blue")
       legend("topright", legend = i)
       #dev.off()
     }
-    
+
   }
   # ends myRLC()
-  
+
   #lines(pe3$light, rlc_params$etrmax2 * tanh((rlc_params$alpha2 * pe3$light) / rlc_params$etrmax2)
-  
+
   # mclapply exectutes the myRLC function above
   #print(system.time(
   #  mclapply(1:total, myRLC, mc.cores = ncores, light = light)
@@ -463,38 +441,39 @@ platt_model <- function(imgdim, etr_total, path = '.', ncores = 1,
   #)
   mclapply(1:total, myRLC, mc.cores = ncores, light = light)
   print("Analysis finished!")
-  
+
   pixels_info <- get_pixels(rlc_matrix, x2, y2)
   print_pixel_messages(pixels_info)
-  
+
   # exports the images to the working directory
-  export_images(rlc_matrix, x2, model = 'platt') 
-  
+  export_images(rlc_matrix, x2, model = 'platt',out_path = output_path)
+
 }
 
 
 
 #' @title Jassby Model
-#' @description Fits a Jassby model
+#' @description Fits the light-photosynthesis curve model suggested by Jassby, A.D., Platt, T., 1976. Mathematical formulation of the relationship between photosynthesis and light for phytoplankton. Limnol. Oceanogr. 21: 540-547.
 #' @param imgdim list with image dimensions and light values
 #' (output from \code{\link{import_data}})
 #' @param etr_total etr big matrix object
-#' @param path character vector indicating full path where files
-#' are located
+#' @param output_path character vector indicating full path where output files
+#' will be saved
 #' @param ncores number of cores for parallel computing
-#' @param plots number of plots. Only works when \code{ncores = 1}
+#' @param plots Should plots be produced during fitting? Only works when \code{ncores = 1}
 #' @param alpha 0.35 by default
 #' @param ETRmax 40 by default
-#' @details multicore will crash if any attemps are made to plot 
-#' anything during processing. Setting \code{plots} to \code{TRUE} when 
+#' @details multicore will crash if any attemps are made to plot
+#' anything during processing. Setting \code{plots} to \code{TRUE} when
 #' \code{ncores > 1} will only plot the maps at the end of model fitting.
-#' It is advised that a first run is carried out with a subset of 
-#' the image to check model fitting plotting the fit curve and 
+#' It is advised that a first run is carried out with a subset of
+#' the image to check model fitting plotting the fit curve and
 #' using only one core.
 #' It creates a bigmemory object to store all the results
 #' @export
-jassby_model <- function(imgdim, etr_total, path = '.', ncores = 1, 
-                         plots = 0, alpha = 0.35, ETRmax = 40)
+jassby_model <- function(imgdim, etr_total, ncores = 1,
+                         plots = FALSE, alpha = 0.35, ETRmax = 40,
+                         output_path=".")
 {
   print("JASSBY")
   if (!exists('etr_total')) {
@@ -506,22 +485,22 @@ jassby_model <- function(imgdim, etr_total, path = '.', ncores = 1,
   light <- imgdim$light
   # multicore?
   ncores <- check_multicore(ncores)
-  
+
   # create a bigmemory object to store all the results
   #rlc_matrix <<- create_rlc(path, x2, y2, ncol = 7)
   print("CREATING RLC-matrix")
   rlc_matrix <<- create_rlc(x2, y2, ncol = 7)
-  
+
   # a counter to keep track of the fitting errors
   count_optim_errors <- 0
   sub_total <- 0
-  
+
   # the function that will be used by mclapply()
   # ======= does it have to be included? =======
   myRLC <- function(i, light) {
     # initialize RLC parameters
     rlc_params <- initialize_rlc_params(model = 'jassby')
-    
+
     # update RLC parameters
     if (any(etr_total[i,] == "NaN")) {
       #skips any pixel that has non-values (areas outside AOI)
@@ -538,19 +517,19 @@ jassby_model <- function(imgdim, etr_total, path = '.', ncores = 1,
       # The tryCatch option allows the errors to be stored inside
       # an object and prevents the mclapply to stop when there is an error
       #      etr_sim <- get_etr_sim(alpha, ETRmax)
-      
+
       minim.func <- function(rlc_params, data = pe3)
       {
         alpha <- rlc_params[[1]]
         etrmax <- rlc_params[[2]]
         return(sum((data$etr - etrmax * tanh((alpha * light) / etrmax)) ^ 2))
       }
-      
-      #function that finds the fit solution 
-      #Optim with  L-BFGS-B is a general-purpose optimization based on a 
-      #modification if the Nelder-Mead quasi Newton method that allows box 
-      #constrains. This is important because both rETRmax and alpha need to be 
-      #positive the tryCatch option allows the errors to be stored inside an 
+
+      #function that finds the fit solution
+      #Optim with  L-BFGS-B is a general-purpose optimization based on a
+      #modification if the Nelder-Mead quasi Newton method that allows box
+      #constrains. This is important because both rETRmax and alpha need to be
+      #positive the tryCatch option allows the errors to be stored inside an
       #object and prevents the mclapply to stop when there is an error
       etr_sim <-
         tryCatch(
@@ -559,56 +538,56 @@ jassby_model <- function(imgdim, etr_total, path = '.', ncores = 1,
             fn = minim.func,
             control = list("maxit" = 1000000, pgtol = 0.01),
             method = "L-BFGS-B",
-            lower = c(0,0), 
+            lower = c(0,0),
             upper = c(Inf, Inf),
             hessian = TRUE
           )
           , error = function(e)
             "NaN"
         )
-      
+
       # if error message reset graf and nonFit
       if (is.character(etr_sim)) {
         rlc_params$nonFit <- 3
         rlc_params$graf <- 1
       }
-      
+
       if (is.list(etr_sim)) {
         if (etr_sim$convergence != 0) {
           count_optim_errors <<- count_optim_errors + 1
           rlc_params$nonFit <- 4
           rlc_params$graf <- 1
         }
-        
+
         if (etr_sim$convergence == 0) {
           rlc_params <- etr_convergence(etr_sim, rlc_params, pe3, model = 'jassby')
         }
-        
+
       }
-      
+
     } # end updating RLC parameters
-    
+
     # store the parameters in the bigmemory object (rlc_matrix)
     rlc_matrix[i, ] <- unlist(rlc_params)[-length(rlc_params)]
-    
+
     print_completeness(ncores, i, total)  # (only for one core)
-    
+
     #to plot data and fitted curves when ncores=1 and it is a valid pixel
-    if (ncores == 1 & rlc_params$graf == 0 & plots == 1 & i %% 5 == 0) {
+    if (ncores == 1 & rlc_params$graf == 0 & plots == TRUE & i %% 5 == 0) {
       #dev.new()
       plot(pe3$light, pe3$etr, pch = 21,
            xlab = "Light", ylab = "rETR")
-      lines(pe3$light, 
+      lines(pe3$light,
             rlc_params$etrmax2 * tanh((rlc_params$alpha2 * pe3$light) / rlc_params$etrmax2),
             col = "blue")
       legend("topright", legend = i)
       #dev.off()
     }
-    
+
   }
   # ends myRLC()
-  
-  
+
+
   # mclapply exectutes the myRLC function above
   #print(system.time(
   #  mclapply(1:total, myRLC, mc.cores = ncores, light = light)
@@ -617,13 +596,13 @@ jassby_model <- function(imgdim, etr_total, path = '.', ncores = 1,
   print("MCLAPPLY")
   mclapply(1:total, myRLC, mc.cores = ncores, light = light)
   print("Analysis finished!")
-  
+
   pixels_info <- get_pixels(rlc_matrix, x2, y2)
   print_pixel_messages(pixels_info)
-  
+
   # exports the images to the working directory
-  export_images(rlc_matrix, x2) 
-  
+  export_images(rlc_matrix, x2,out_path = output_path)
+
 }
 
 

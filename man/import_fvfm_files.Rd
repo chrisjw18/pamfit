@@ -4,7 +4,7 @@
 \alias{import_fvfm_files}
 \title{Import Fv,Fm files}
 \usage{
-import_fvfm_files(path, light)
+import_fvfm_files(path, light, i_light, f_light)
 }
 \arguments{
 \item{path}{a character vector with the full path name of the

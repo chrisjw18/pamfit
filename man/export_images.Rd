@@ -4,7 +4,7 @@
 \alias{export_images}
 \title{Export Images}
 \usage{
-export_images(rlc_matrix, x2, model = "jassby")
+export_images(rlc_matrix, x2, model = "jassby", out_path)
 }
 \arguments{
 \item{rlc_matrix}{RLC big matrix object}
@@ -14,7 +14,7 @@ export_images(rlc_matrix, x2, model = "jassby")
 \item{model}{name of fitted model}
 }
 \description{
-Export images as text files that can be imported by 
+Export images as text files that can be imported by
 ImageJ as text Images
 }
 \keyword{internal}
