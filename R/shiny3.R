@@ -14,11 +14,8 @@ shiny3 <- function(my.data){
   #library(parallel)
   #library(snow)
   library(sp)
-<<<<<<< HEAD
   #`%>%` <- magrittr::`%>%`
-=======
-  `%>%` <- magrittr::`%>%`
->>>>>>> 89fd589861fe1aabb3527d143ef42e46e3ca436d
+
   #create environment
   e2 <- new.env()
 
