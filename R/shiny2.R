@@ -16,7 +16,11 @@ shiny2 <- function(my.data){
   #library(tiff)
   #library(raster)
   #library(shiny)
+<<<<<<< HEAD
   #`%>%` <- magrittr::`%>%`
+=======
+  `%>%` <- magrittr::`%>%`
+>>>>>>> 89fd589861fe1aabb3527d143ef42e46e3ca436d
 #(re) define projections that will be used in the polgon fitting within the app
 leafletProj <- "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +nadgrids=@null +wktext +no_defs"
 #define polygon projection
