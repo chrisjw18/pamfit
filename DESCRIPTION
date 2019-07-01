@@ -3,21 +3,40 @@ Version: 0.1.1
 Authors@R: c(
     person("Jesus", "Bruno", , "bmjesus@gmail.com", c("aut","cre")),
     person("Williamsoni", "Christopher", , "c.williamson@bristol.ac.uk", c("aut"))
-    ))
+    )
 Title: Creating P-I light curve parameter images using Imaging PAM data
 Description: A set of functions to import RLC data from an Imaging PAM (Walz,
     Germany) and produce a set of images of the corresponding RLC parameters (i.e.
     alpha, Ek, ETRmax and beta). The user can fit the model described in Jassby &
     Platt (1976) or the model by Platt et al. (1980). The functions were tested with
-    a MACRO, STANDARD and MICROSCOPY imaging PAM versions. Input files need to be
-    produced using the ImageJ macro (Extract_data_ImagingPAM.ijm) that can be found
-    at LINK (github?).
-Depends: R (>= 2.9)
-Imports: bigmemory, doMC
+    a MACRO, STANDARD and MICROSCOPY imaging PAM versions.
+Depends: R (>= 3.4)
+Imports: 
+    shiny, 
+    tiff,
+    raster,
+    DT,
+    mapview,
+    leaflet,
+    leaflet.extras,
+    sp,
+    plotly,
+    magrittr,
+    parallel,
+    snow,
+    minpack.lm
 License: BSD
-Collate: 'import-files.R' 'pamfit.R' 'models.R'
-RoxygenNote: 6.0.1
+Collate: 
+    'shiny_1.R' 
+    'shiny2.R' 
+    'shiny3.R'
+    'shiny4.R'
+RoxygenNote: 6.1.1
 NeedsCompilation: no
 Packaged: 2016-07-13 14:01:17 UTC; bmjesus
 Author: Jesus Bruno [aut,cre]
 Maintainer: Bruno Jesus <bmjesus@gmail.com>
+VignetteBuilder: knitr
+
+
+
