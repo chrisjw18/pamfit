@@ -148,7 +148,9 @@ if(abs == "no"){
   etr <- raster::calc(fv_fm_img, etr.fun.1)
 } else {
   etr <- raster::calc(fvm_fm_img, etr.fun.2)
-  }
+}
+
+#calc function to make etr with etr.1 only, then if we have a abs.rast, mutiplty by this afterwards.
 
 my.data$f_img <- f_img
 names(my.data$f_img) <- paste('F', 1:(raster::nlayers(my.data$f_img)), sep='_')
