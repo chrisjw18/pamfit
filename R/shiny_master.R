@@ -873,11 +873,9 @@ server <- function(input, output, session){
       for(i in 1:length(names(app.data))){
         my.classes[i] <- class(app.data[[names(app.data)[i]]])
       }
-      print(my.classes)
       my.bricks <- which(my.classes == 'RasterStack' | my.classes == 'RasterBrick')
       #brick.dat <- app.data[[names(app.data)[my.bricks]]]
       brick.names <- names(app.data)[my.bricks]
-      print(brick.names)
       
       shiny::selectInput('selectBrick', 'Choose raster brick',
                          choices = brick.names, selected = brick.names[1])
@@ -898,7 +896,6 @@ server <- function(input, output, session){
   output$rasterImage <- leaflet::renderLeaflet({
     if(!is.null(app.data$step_3) && app.data$step_3 == 'complete' && !is.null(app.data$brick)){
     my.rast <- raster::raster(app.data[[names(app.data)[names(app.data) == app.data$brick]]], app.data$layer)
-    print(my.rast)
     pal <- leaflet::colorNumeric(palette = 'magma',
                                  domain = c(min(values(my.rast), na.rm = T), max(values(my.rast), na.rm = T)),
                                  na.color = 'transparent')
